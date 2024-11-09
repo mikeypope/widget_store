@@ -1,0 +1,54 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<br><br><br>
+<h2>Processed Orders</h2>
+<a href="{% url 'order_processing:unprocessed_orders' %}" class="btn btn-primary">View Unprocessed Orders</a>
+<br>
+<form method="GET" class="mb-3">
+    <div class="row">
+        <div class="col">
+            <input type="text" name="order_number" class="form-control" placeholder="Search by Order Number" value="{{ request.GET.order_number }}">
+        </div>
+        <div class="col">
+            <input type="text" name="payer_name" class="form-control" placeholder="Search by Payer Name" value="{{ request.GET.payer_name }}">
+        </div>
+        <div class="col">
+            <input type="date" name="start_date" class="form-control" placeholder="Start Date" value="{{ request.GET.start_date }}">
+        </div>
+        <div class="col">
+            <input type="date" name="end_date" class="form-control" placeholder="End Date" value="{{ request.GET.end_date }}">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order Number</th>
+            <th>Customer Name</th>
+            <th>Order Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.order_number }}</td>
+            <td>{{ order.payer_name }}</td>
+            <td>{{ order.created_at }}</td>
+            <td>
+                <a href="{% url 'order_processing:order_detail' order.order_number %}" class="btn btn-primary">View Order Detail</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No orders found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

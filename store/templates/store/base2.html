@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>WIDGETS, INC.</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .navbar {
+            position: fixed;
+            top: 5px;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar-brand img {
+            max-height: 75px;
+            margin-right: 10px;
+        }
+        .main {
+            display: flex;
+            flex: 1;
+        }
+        .sidebar {
+            width: 175px;
+            height: calc(100vh - 40px);
+            position: fixed;
+            top: 100px;
+            left: 0;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            overflow-y: auto;
+        }
+        .content {
+            margin-left: 175px;
+            padding: 20px;
+            width: 100%;
+            padding-top: 20px;
+        }
+        #product-results {
+            position: absolute;
+            top: 100%;  /* Position it directly below the search field */
+            right: 0;   /* Align it with the right side of the search input */
+            background: white;
+            width: 300px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+            z-index: 999;
+            display: none; /* Initially hidden */
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 5px;  /* Add a little space between the input and the results */
+        }
+        .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .search-result-item:hover {
+            background-color: #f1f1f1;
+        }
+        .ascii-logo {
+        color: #000000;                /* Set text color */
+        font-family: monospace;     /* Monospaced font for ASCII art */
+        font-size: 3px;            /* Adjust font size */
+        text-align: center;         /* Center align */
+        white-space: pre;           /* Preserve spacing for ASCII art */
+        margin: 0;
+        padding: 0;
+    }
+        </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid justify-content-center">
+            <!--<a class="navbar-brand" href="#">
+                <img src="{% static 'images/widgetsinc.png' %}" alt="Logo" height="75" class="d-inline-block align-text-center">
+            </a>-->
+            <pre class="ascii-logo"><b>
+
+
+                ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄       ▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄       ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄       ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄        ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄          ▄▄▄▄      ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ 
+                ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░▌     ▐░░▌▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░▌      ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌       ▄█░░░░▌    ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
+                ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀█░▌▐░▌░▌   ▐░▐░▌▐░█▀▀▀▀▀▀▀█░▌▐░▌       ▐░▌ ▀▀▀▀█░█▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀█░▌     ▐░█▀▀▀▀▀▀▀▀▀  ▀▀▀▀█░█▀▀▀▀ ▐░▌       ▐░▌▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀      ▐░█▀▀▀▀▀▀▀▀▀  ▀▀▀▀█░█▀▀▀▀ ▐░▌░▌     ▐░▌▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀       ▐░░▌▐░░▌    ▐░█▀▀▀▀▀▀▀█░▌▐░█▀▀▀▀▀▀▀█░▌▐░█▀▀▀▀▀▀▀█░▌
+                ▐░▌          ▐░▌       ▐░▌▐░▌▐░▌ ▐░▌▐░▌▐░▌       ▐░▌▐░▌       ▐░▌     ▐░▌     ▐░▌          ▐░▌       ▐░▌     ▐░▌               ▐░▌     ▐░▌       ▐░▌▐░▌          ▐░▌               ▐░▌               ▐░▌     ▐░▌▐░▌    ▐░▌▐░▌          ▐░▌                 ▀▀ ▐░░▌    ▐░▌       ▐░▌▐░▌       ▐░▌▐░▌       ▐░▌
+                ▐░▌          ▐░▌       ▐░▌▐░▌ ▐░▐░▌ ▐░▌▐░█▄▄▄▄▄▄▄█░▌▐░▌       ▐░▌     ▐░▌     ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄█░▌     ▐░█▄▄▄▄▄▄▄▄▄      ▐░▌     ▐░▌       ▐░▌▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄      ▐░█▄▄▄▄▄▄▄▄▄      ▐░▌     ▐░▌ ▐░▌   ▐░▌▐░▌          ▐░█▄▄▄▄▄▄▄▄▄           ▐░░▌    ▐░█▄▄▄▄▄▄▄█░▌▐░█▄▄▄▄▄▄▄█░▌▐░█▄▄▄▄▄▄▄█░▌
+                ▐░▌          ▐░▌       ▐░▌▐░▌  ▐░▌  ▐░▌▐░░░░░░░░░░░▌▐░▌       ▐░▌     ▐░▌     ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░░░░░░░░░░░▌     ▐░▌     ▐░▌       ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░░░░░░░░░░░▌     ▐░▌     ▐░▌  ▐░▌  ▐░▌▐░▌          ▐░░░░░░░░░░░▌          ▐░░▌    ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌ ▐░░░░░░░░░▌ 
+                ▐░▌          ▐░▌       ▐░▌▐░▌   ▀   ▐░▌▐░█▀▀▀▀▀▀▀▀▀ ▐░▌       ▐░▌     ▐░▌     ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀█░█▀▀       ▀▀▀▀▀▀▀▀▀█░▌     ▐░▌     ▐░▌       ▐░▌▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀       ▀▀▀▀▀▀▀▀▀█░▌     ▐░▌     ▐░▌   ▐░▌ ▐░▌▐░▌          ▐░█▀▀▀▀▀▀▀▀▀           ▐░░▌     ▀▀▀▀▀▀▀▀▀█░▌ ▀▀▀▀▀▀▀▀▀█░▌▐░█▀▀▀▀▀▀▀█░▌
+                ▐░▌          ▐░▌       ▐░▌▐░▌       ▐░▌▐░▌          ▐░▌       ▐░▌     ▐░▌     ▐░▌          ▐░▌     ▐░▌                 ▐░▌     ▐░▌     ▐░▌       ▐░▌▐░▌          ▐░▌                         ▐░▌     ▐░▌     ▐░▌    ▐░▌▐░▌▐░▌          ▐░▌                    ▐░░▌              ▐░▌          ▐░▌▐░▌       ▐░▌
+                ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄█░▌▐░▌       ▐░▌▐░▌          ▐░█▄▄▄▄▄▄▄█░▌     ▐░▌     ▐░█▄▄▄▄▄▄▄▄▄ ▐░▌      ▐░▌       ▄▄▄▄▄▄▄▄▄█░▌     ▐░▌     ▐░█▄▄▄▄▄▄▄█░▌▐░▌          ▐░▌                ▄▄▄▄▄▄▄▄▄█░▌ ▄▄▄▄█░█▄▄▄▄ ▐░▌     ▐░▐░▌▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄       ▄▄▄▄█░░█▄▄▄  ▄▄▄▄▄▄▄▄▄█░▌ ▄▄▄▄▄▄▄▄▄█░▌▐░█▄▄▄▄▄▄▄█░▌
+                ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░▌          ▐░░░░░░░░░░░▌     ▐░▌     ▐░░░░░░░░░░░▌▐░▌       ▐░▌     ▐░░░░░░░░░░░▌     ▐░▌     ▐░░░░░░░░░░░▌▐░▌          ▐░▌               ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌      ▐░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌     ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
+                 ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀         ▀  ▀            ▀▀▀▀▀▀▀▀▀▀▀       ▀       ▀▀▀▀▀▀▀▀▀▀▀  ▀         ▀       ▀▀▀▀▀▀▀▀▀▀▀       ▀       ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀                 ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀        ▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀       ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀ 
+                                                                                                                                                                                                                                                                                                                             
+                
+                           
+            </b></pre>  
+            <b>   WIDGETS, INC.</b>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <form class="d-flex ms-3" id="search-form" autocomplete="off">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="search-input">
+                        <div id="product-results"></div> <!-- Search results container -->
+                    </form>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'check_order_status' %}">Check Order Status</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'cart_summary' %}">See Cart</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <!-- Only show these links if the user is logged in -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'order_processing:unprocessed_orders' %}">Order Processing</a>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link" style="border: none; background: none; padding: 0;">
+                                Log Out
+                            </button>
+                        </form>
+                    </li>
+                    {% else %}
+                    <!-- Optionally, add a login link if the user is not logged in -->
+                    
+                    {% endif %}
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Layout -->
+    <div class="main">
+        <!-- Left Sidebar for Categories -->
+        <div class="sidebar">
+            <h4 class="text-center">Categories</h4>
+            <ul class="nav flex-column">
+                {% for category in categories %}
+                <li class="nav-item">
+                    <a class="nav-link text-center" href="{% url 'product_list_by_category' category.slug %}">{{ category.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="container mt-4">
+                {% block content %}{% endblock %}
+                {% if messages %}
+                <div class="container mt-3">
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} alert-dismissible fade show message-alert" role="alert">
+                            {{ message }}
+                            
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- AJAX Search Script -->
+    <script>
+        $(document).ready(function(){
+            $('#search-input').on('keyup', function(){
+                let query = $(this).val();
+                if (query.length > 0) {
+                    $.ajax({
+                        url: '/search/',
+                        method: 'GET',
+                        data: {
+                            'q': query
+                        },
+                        success: function(response){
+                            $('#product-results').html(response).show();
+                        },
+                        error: function(){
+                            console.log('Search error.');
+                        }
+                    });
+                } else {
+                    $('#product-results').hide();
+                }
+            });
+    
+            // Hide results if clicked outside of the input or results
+            $(document).click(function(e) {
+                if (!$(e.target).closest('#search-input, #product-results').length) {
+                    $('#product-results').hide();
+                }
+            });
+        });
+    </script>
+    <script>
+        // Auto-dismiss messages after 2 seconds
+        window.addEventListener('load', function() {
+            const messages = document.querySelectorAll('.message-alert');
+    
+            // Set a timeout to fade out and remove messages after 2 seconds
+            setTimeout(() => {
+                messages.forEach(message => {
+                    // Smooth fade-out
+                    message.classList.add('fade-out');
+                    setTimeout(() => message.remove(), 500);  // Adjust to match the fade-out duration
+                });
+            }, 2000);
+    
+            // Attach click event to close button to remove the message
+            messages.forEach(message => {
+                const closeBtn = message.querySelector('.close');
+                closeBtn.addEventListener('click', () => {
+                    message.remove();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

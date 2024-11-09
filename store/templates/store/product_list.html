@@ -1,0 +1,48 @@
+{% extends 'store/base.html' %}
+{% block content %}
+{% load static %}
+<br><br><br>
+
+
+<div class="row">
+    <h3>{{ category }}</h3>
+    <form method="get" id="manufacturer-filter-form">
+        <label for="manufacturer-select">Filter by Manufacturer:</label>
+        <select name="manufacturer" id="manufacturer-select" onchange="document.getElementById('manufacturer-filter-form').submit();">
+            <option value="">All Manufacturers</option>
+            {% for manufacturer in manufacturers %}
+                <option value="{{ manufacturer }}" {% if manufacturer == selected_manufacturer %}selected{% endif %}>
+                    {{ manufacturer }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+    {% for product in products %}
+    <div class="col-md-3">
+        <div class="card mb-4 shadow-sm">
+            {% if product.image %}
+                <a href="{% url 'product_detail' product.slug %}"><img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}"/></a>
+            {% else %}
+                <a href="{% url 'product_detail' product.slug %}"><img src="{% static 'images/logo.jpeg' %}" class="card-img-top" alt="No image available" /></a>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">SKU: {{ product.sku }}</h5>
+                <p class="card-text">{{ product.manufacturer }} | {{ product.description }}</p>
+                {% if product.price %}
+                {% else %}
+                    <p>Call for pricing</p>
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-center">
+                    {% if product.price %}
+                        <form method="post" action="{% url 'add_to_cart' product.id %}" class="me-2">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success"><b>${{ product.price }}</b> Add to cart</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

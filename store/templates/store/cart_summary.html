@@ -1,0 +1,53 @@
+{% extends 'store/base.html' %}
+{% block content %}
+<br><br><br>
+<h2>Your Cart</h2>
+
+{% if cart_items %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Manufacturer</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Price per unit</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+                <tr>
+                    <td><a href="{% url 'product_detail' item.product.slug %}">
+                        {{ item.product.sku }}
+                    </a></td>
+                    <td>{{ item.product.manufacturer }}</td>
+                    <td>{{ item.product.description }}</td>
+                    <td>
+                        <!-- Quantity Update Form -->
+                        <form action="{% url 'update_cart_item' item.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control" style="width: 60px; display: inline;">
+                            <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                        </form>
+                    </td>
+                    <td>${{ item.product.price }}</td>
+                    <td>
+                        <!-- Link to remove the item from cart -->
+                        <form action="{% url 'remove_from_cart' item.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Total Price: ${{ total_price|floatformat:2 }}</h3>
+    <a href="{% url 'checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
+{% else %}
+    <p>Your cart is empty.</p>
+{% endif %}
+
+{% endblock %}

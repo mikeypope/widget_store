@@ -1,0 +1,21 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<br><br><br>
+<div class="col-md-4">
+<h3>Check Order Status</h3>
+<form method="post" action="{% url 'check_order_status' %}">
+    {% csrf_token %}
+    <div class="row">
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Check Status</button>
+    </div>
+</form>
+</div>
+
+{% if status %}
+    <h4>Order Status: {{ status }}</h4>
+{% elif status is not None %}
+    <p>No order found with that number.</p>
+{% endif %}
+{% endblock %}

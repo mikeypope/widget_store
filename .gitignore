@@ -1,0 +1,30 @@
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+
+# Ignore virtual environment
+venv/
+
+# Ignore database files
+db.sqlite3
+
+# Ignore Django migration files
+*.pyc
+
+# Ignore any local settings
+*.env
+
+# Ignore static and media files (if they are generated automatically)
+#static/
+#media/
+
+# Ignore VS Code specific files
+.vscode/
+*.code-workspace
+
+# Ignore any logs
+*.log
+
+# Ignore compiled files for macOS and Windows (optional)
+.DS_Store
+Thumbs.db

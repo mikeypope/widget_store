@@ -1,0 +1,12 @@
+{# order_success.html #}
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h2>Order Placed Successfully!</h2>
+    <p>Thank you for your purchase. Your order is being processed.</p>
+    <p><strong>Order Number:</strong> {{ order_number }}</p>
+    <p>Please keep this number for reference.</p>
+    
+</div>
+{% endblock %}

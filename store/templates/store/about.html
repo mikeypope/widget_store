@@ -1,0 +1,51 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .card-img-top {
+        max-width: 30%; /* Adjust this percentage as needed */
+        height: auto;  /* Maintain the aspect ratio */
+        margin: 0 auto; /* Center the image */
+    }
+</style>
+<div class="container mt-4">
+    <div class="card">
+           
+        <img src="{% static 'images/logo.jpeg' %}" class="card-img-top" alt="Logo"> </img>
+        <div class="card-body">
+            <p>
+                Welcome to Widgets, Inc. Online! We are dedicated to bringing you the best selection of products at competitive prices. Our mission is to provide an easy, enjoyable, and seamless shopping experience for all our customers.
+            </p>
+            <h5>Our Story</h5>
+            <p>
+                We've been in business for over 20 years serving the Information Technology community. We've done business all over the world with government buyers, large Fortune 500 accounts, medium and small businesses, and individuals, and service them all equally well. 
+                <br>We have over 10,000 products that we can usually ship same day. 
+            </p>
+            <h5>Our Inventory</h5>
+            <p>   
+                We specialize in "hard to find" items. We answer our phones from 7:30 AM to 5:00 PM PST, and invite your call if you have any questions about an item on our site, or one not listed for which you're looking. 
+                <strong>We stand behind the products we sell.</strong><br>
+                The items included on these pages are just a small portion of our inventory. If you don't see what you need listed here, it doesn't mean we don't have it. <br>
+                
+            </p>
+            <h5>Don't see what you need?</h5>
+            <p>
+                Call us or e-mail us with your queries. 
+                <br>Please specify what you are looking for, and include a fax number if you want to receive your quote via fax rather than e-mail. We're here to help!
+            </p>
+            <h5>Why Shop With Us?</h5>
+            <ul>
+                <li>Wide variety of products</li>
+                <li>Competitive prices</li>
+                <li>Fast and reliable shipping</li>
+                <li>Easy returns and refunds</li>
+                <li>Exceptional customer service</li>
+            </ul>
+            <p>
+                Thank you for choosing to shop with us! We hope you enjoy your experience and look forward to serving you again.
+            </p>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<br><br><br>
+<h2>Order Summary</h2>
+<form method="POST" action="{% url 'order_processing:order_detail' order.order_number %}">
+    {% csrf_token %}
+    <div class="d-flex align-items-center">
+        <label for="status" class="me-2 mb-0">Order Status:</label>
+        <input type="text" class="form-control me-2" id="status" name="status" placeholder="Enter new status" value="{{ order.status }}" style="width: 400px;"> <!-- Adjusted width -->
+        <button type="submit" class="btn btn-success">Update Status</button>
+    </div>
+    <button type="submit" name="toggle_processed" class="btn btn-primary mt-2">
+        {% if order.is_processed %} Mark as Not Processed {% else %} Mark as Processed {% endif %}
+    </button>
+</form>
+<p><strong>Order Number:</strong> {{ order.order_number }}</p>
+<p><strong>Created At:</strong> {{ order.created_at }}</p>
+
+{% if order_items %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Product SKU</th>
+                <th>Manufacturer</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Price per Unit</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order_items %}
+                <tr>
+                    <td><a href="{% url 'product_detail' item.product.slug %}">{{ item.product.sku }}</a></td>
+                    <td>{{ item.product.manufacturer }}</td>
+                    <td>{{ item.product.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.price|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Total Order Price: ${{ total_price|floatformat:2 }}</h3>
+
+    <h2>Payment Information</h2>
+    {% if payment_details %}
+        <p><strong>Card Type:</strong> {{ payment_details.card_type }}</p>
+        <p><strong>Card Expiry:</strong> {{ payment_details.card_expiry }}</p>
+        <p><strong>Payer Name:</strong> {{ payment_details.payer_name }}</p>
+        <p><strong>Card Number:</strong> <span id="card-number">**** **** **** {{ decrypted_card_number|slice:"-4:" }}</span></p>
+        <button type="button" id="toggle-card-number" class="btn btn-secondary">Show Full Card Number</button>
+        <p><strong>Street Address:</strong> {{ payment_details.street_address }}</p>
+        <p><strong>City:</strong> {{ payment_details.city }}</p>
+        <p><strong>State:</strong> {{ payment_details.state }}</p>
+        <p><strong>ZIP Code:</strong> {{ payment_details.zip_code }}</p>
+        <p><strong>Email:</strong> {{ payment_details.email }}</p>
+        <p><strong>Phone:</strong> {{ payment_details.phone }}</p>
+    {% else %}
+        <p>No payment details available for this order.</p>
+    {% endif %}
+
+
+{% else %}
+    <p>No items found for this order.</p>
+{% endif %}
+<script>
+    document.getElementById('toggle-card-number').addEventListener('click', function() {
+        const cardNumberElement = document.getElementById('card-number');
+        const fullCardNumber = "{{ decrypted_card_number }}"; // Get full card number
+
+        // Toggle the display of the card number
+        if (cardNumberElement.textContent.includes('****')) {
+            cardNumberElement.textContent = fullCardNumber; // Show full card number
+            this.textContent = 'Mask Card Number'; // Update button text
+        } else {
+            cardNumberElement.textContent = '**** **** **** ' + fullCardNumber.slice(-4); // Mask the card number
+            this.textContent = 'Show Full Card Number'; // Update button text
+        }
+    });
+</script>
+{% endblock %}

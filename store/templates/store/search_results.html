@@ -1,0 +1,13 @@
+{% for product in products %}
+    <div class="search-result-item">
+        <a href="{% url 'product_detail' product.slug %}">
+            <strong>SKU: {{ product.sku }}</strong>
+            {{ product.category }}
+            <br>
+            {{ product.manufacturer }}
+            {{ product.description|truncatewords:10 }} <!-- Shortened description -->
+        </a>
+    </div>
+{% empty %}
+    <p>No results found.</p>
+{% endfor %}

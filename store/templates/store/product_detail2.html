@@ -1,0 +1,33 @@
+{% extends 'store/base.html' %}
+{% block content %}
+{% load static %}
+<br><br><br><br>
+<div class="row">
+    <div class="col-md-6">
+        {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+        {% else %}
+            <img src="{% static 'images/logo.jpeg' %}" class="card-img-top" alt="No image available">
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        SKU:<strong> {{ product.sku }}</strong>
+        <p>{{ product.manufacturer }} | {{ product.category }}</p>
+        <p>{{ product.description }}</p>
+        {% if product.price %}
+            <p>${{ product.price }}</p>
+        {% else %}
+            <p>Call for pricing</p>
+        {% endif %}
+        
+        {% if product.price %}
+        <!-- Add to Cart Form -->
+        <form method="post" action="{% url 'add_to_cart' product.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Add to Cart</button>
+        </form>
+        {% endif %}
+        
+    </div>
+</div>
+{% endblock %}
