@@ -8,44 +8,135 @@
         margin: 0 auto; /* Center the image */
     }
 </style>
-<div class="container mt-4">
-    <div class="card">
-           
-        <img src="{% static 'images/logo.jpeg' %}" class="card-img-top" alt="Logo"> </img>
-        <div class="card-body">
-            <p>
-                Welcome to Widgets, Inc. Online! We are dedicated to bringing you the best selection of products at competitive prices. Our mission is to provide an easy, enjoyable, and seamless shopping experience for all our customers.
-            </p>
-            <h5>Our Story</h5>
-            <p>
-                We've been in business for over 20 years serving the Information Technology community. We've done business all over the world with government buyers, large Fortune 500 accounts, medium and small businesses, and individuals, and service them all equally well. 
-                <br>We have over 10,000 products that we can usually ship same day. 
-            </p>
-            <h5>Our Inventory</h5>
-            <p>   
-                We specialize in "hard to find" items. We answer our phones from 7:30 AM to 5:00 PM PST, and invite your call if you have any questions about an item on our site, or one not listed for which you're looking. 
-                <strong>We stand behind the products we sell.</strong><br>
-                The items included on these pages are just a small portion of our inventory. If you don't see what you need listed here, it doesn't mean we don't have it. <br>
-                
-            </p>
-            <h5>Don't see what you need?</h5>
-            <p>
-                Call us or e-mail us with your queries. 
-                <br>Please specify what you are looking for, and include a fax number if you want to receive your quote via fax rather than e-mail. We're here to help!
-            </p>
-            <h5>Why Shop With Us?</h5>
-            <ul>
-                <li>Wide variety of products</li>
-                <li>Competitive prices</li>
-                <li>Fast and reliable shipping</li>
-                <li>Easy returns and refunds</li>
-                <li>Exceptional customer service</li>
-            </ul>
-            <p>
-                Thank you for choosing to shop with us! We hope you enjoy your experience and look forward to serving you again.
-            </p>
-            
+<div class="container mt-4 border-0">
+    <div class="row">
+        <div class="col">
+            <div class="card text-center border-0">
+                <img src="{% static 'images/logo.jpeg' %}" class="card-img-top" alt="Widgets Inc." style="width: 200px">
+                <div class="card-body">
+                  <h5 class="card-title">Welcome to Widgets Inc. Online!</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">"Computer Stuff" since 1998</h6>
+                </div>
+            </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card border-0">
+                <div class="card-body">
+                    <h4 class="card-title text-center">What are you looking for today?<img src="{% static 'images/magnifying-glass.png' %}" width="40px"></h4>
+                    <div class="card-text">
+                        <div>
+                            <form class="card-text" id="search-form"autocomplete="off">
+                                {% csrf_token %}
+                                <input class="form-control me-2" type="search" placeholder="Search by manufacturer, part number, or part description..." aria-label="Search" id="search-input">
+                            </form>
+                            <div id="product-results" class="dropdown-menu w-100 shadow">
+                                <!-- Search results dynamically populated here -->
+                            </div>
+                                                    
+                        </div>
+                    </div>
+                    <br>
+                    <div class="card-text text-muted text-center">
+                        <h6>Or, browse by
+                    
+                        <div class="btn-group" role="group">
+                            <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Category
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                {% for category in categories %}
+                                <li class="dropdown-item">
+                                    <a href="{% url 'product_list_by_category' category.slug %}" class="nav-link text-dark">{{ category.name }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        </div>   
+
+        <div class="col-md-6">
+            <div class="card border-0">
+                <div class="card-body">
+                    <h4 class="card-title text-center">
+                        Already placed an order?
+                        <img src="{% static 'images/packing.png' %}" width="40px">
+                    </h4>
+                    <div class="card-text">
+                        <!-- Display success/error messages -->
+                        {% if messages %}
+                            <ul class="list-unstyled">
+                                {% for message in messages %}
+                                    <li class="alert alert-{{ message.tags }}">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        
+                        <!-- Order status form -->
+                        <form class="card-text" id="order-form" autocomplete="on" method="post" action="{% url 'check_order_status' %}">
+                            {% csrf_token %}
+                            <input class="form-control me-2" type="search" placeholder="Enter your order number here..." aria-label="Search" id="order_number" name="order_number">
+                            <button type="submit" class="btn btn-primary">Check Order Status</button>
+                            <br>
+                            {% if status %}
+                            <h6>The status of order <b>{{ order_number }}</b> is:</h6>
+                                {{ status }}
+                            {% elif status is not None %}
+                                <p>No order found with that number.</p>
+                            {% endif %}
+                        </form>
+                            {% if status %}
+                            <a href="{% url 'show_receipt' order_number %}" class="btn btn-success">View Receipt</a>
+                            {% endif %}
+                
+                    </div>
+                </div>
+            </div>        
+        </div>
+            
+        <div class="col-md-6">
+            <div class="card border-0">
+                <div class="card-body">
+                    <h6 class="card-title text-center">Not finding what you need?</h6>
+                    <p class="card-text">The items on our site are just a small portion of our inventory. If you don't see what you need listed here, it doesn't mean we don't have it.</p>
+                    <p class="card-text">Call us at <b>1-310-457-2543 or 1-800-722-8798</b> between 7:30AM to 5:00PM Pacific Monday-Friday</p>
+                </div>
+            </div>
+        </div>  
+    
+        <div class="col-md-6">
+            <div class="card border-0">
+                <div class="card-body">   
+                    <h6 class="card-title text-center">Celebrating 20 years of serving our customers</h6>
+                    <p class="card-text">
+                        We've done business all over the world with government buyers, large Fortune 500 accounts, medium and small businesses, and with individuals. We pride ourselves in being able to service them all equally well. 
+                    </p>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="col-md-12">
+            <div class="card border-0">
+                <br>
+                <div class="card-text">   
+                    <h5 class="card-title text-center">We ship from the USA! <img src="{% static 'images/american-flag.png' %}" width="40px">
+                    </h5>
+                    <p class="card-title text-center">We have over 10,000 products that we can usually ship same day from Southern California.</p>
+                </div>
+                <div class="card-body">
+                    <br><br>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
 </div>
 {% endblock %}

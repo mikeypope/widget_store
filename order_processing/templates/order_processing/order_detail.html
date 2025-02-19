@@ -1,19 +1,38 @@
 {% extends 'store/base.html' %}
 
 {% block content %}
-<br><br><br>
+<a href="{% url 'order_processing:unprocessed_orders' %}" class="btn btn-primary">View Unprocessed Orders</a>
+<a href="{% url 'order_processing:processed_orders' %}" class="btn btn-primary">View Processed Orders</a>
+<a href="{% url 'order_processing:completed_orders' %}" class="btn btn-primary">View Completed Orders</a>
+<br>
+<br>
 <h2>Order Summary</h2>
-<form method="POST" action="{% url 'order_processing:order_detail' order.order_number %}">
-    {% csrf_token %}
-    <div class="d-flex align-items-center">
-        <label for="status" class="me-2 mb-0">Order Status:</label>
-        <input type="text" class="form-control me-2" id="status" name="status" placeholder="Enter new status" value="{{ order.status }}" style="width: 400px;"> <!-- Adjusted width -->
-        <button type="submit" class="btn btn-success">Update Status</button>
-    </div>
-    <button type="submit" name="toggle_processed" class="btn btn-primary mt-2">
-        {% if order.is_processed %} Mark as Not Processed {% else %} Mark as Processed {% endif %}
-    </button>
-</form>
+<div class="d-flex align-items-center">
+    <form method="POST" action="{% url 'order_processing:order_detail' order.order_number %}" class="me-2">
+        {% csrf_token %}
+        <div class="d-flex align-items-center">
+            <label for="status" class="me-2 mb-0">Order Status:</label>
+            <input type="text" class="form-control me-2" id="status" name="status" placeholder="Enter new status" value="{{ order.status }}" style="width: 400px;">
+            <button type="submit" name="update_status" class="btn btn-success">Update Status</button>
+        </div>
+    </form>
+
+    <form method="POST" action="{% url 'order_processing:process_order' order.id %}" class="me-2">
+        {% csrf_token %}
+        <button type="submit" name="toggle_processed" class="btn btn-primary">
+            {% if order.is_processed %} Mark as Not Processed {% else %} Mark as Processed {% endif %}
+        </button>
+    </form>
+
+    <form method="POST" action="{% url 'order_processing:complete_order' order.id %}">
+        {% csrf_token %}
+        <button type="submit" name="toggle_complete" class="btn btn-primary" {% if not order.is_processed %}disabled{% endif %}>
+            {% if order.is_complete %} Mark as Not Complete {% else %} Mark as Complete {% endif %}
+        </button>
+    </form>
+</div>
+
+
 <p><strong>Order Number:</strong> {{ order.order_number }}</p>
 <p><strong>Created At:</strong> {{ order.created_at }}</p>
 
@@ -41,14 +60,18 @@
         </tbody>
     </table>
 
-    <h3>Total Order Price: ${{ total_price|floatformat:2 }}</h3>
+    <div>
+        <h3 id="totalWithNoTax" style="display:block;">Total: ${{ total_price|floatformat:2 }}</h3>
+        <h4 id="subTotal" style="display:none;">Subtotal: ${{ total_price|floatformat:2 }}</h4>
+        <h3 id="totalWithTax" style="display:none;">Total with CA Tax: ${{ total_price_with_tax|floatformat:2 }}</h3>
+    </div>
 
     <h2>Payment Information</h2>
     {% if payment_details %}
         <p><strong>Card Type:</strong> {{ payment_details.card_type }}</p>
         <p><strong>Card Expiry:</strong> {{ payment_details.card_expiry }}</p>
         <p><strong>Payer Name:</strong> {{ payment_details.payer_name }}</p>
-        <p><strong>Card Number:</strong> <span id="card-number">**** **** **** {{ decrypted_card_number|slice:"-4:" }}</span></p>
+        <p><strong>Card Number:</strong> <span id="card-number">{{ payment_details.masked_card_number }}</span></p>
         <button type="button" id="toggle-card-number" class="btn btn-secondary">Show Full Card Number</button>
         <p><strong>Street Address:</strong> {{ payment_details.street_address }}</p>
         <p><strong>City:</strong> {{ payment_details.city }}</p>
@@ -66,16 +89,42 @@
 {% endif %}
 <script>
     document.getElementById('toggle-card-number').addEventListener('click', function() {
-        const cardNumberElement = document.getElementById('card-number');
-        const fullCardNumber = "{{ decrypted_card_number }}"; // Get full card number
+    const cardNumberElement = document.getElementById('card-number');
+    const button = this;
 
-        // Toggle the display of the card number
-        if (cardNumberElement.textContent.includes('****')) {
-            cardNumberElement.textContent = fullCardNumber; // Show full card number
-            this.textContent = 'Mask Card Number'; // Update button text
+    // If the card number is currently masked, make an AJAX request to get the full number
+    if (cardNumberElement.textContent.includes('****')) {
+        fetch("{% url 'order_processing:decrypted_card_number' order.order_number %}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.card_number) {
+                    cardNumberElement.textContent = data.card_number; // Show full card number
+                    button.textContent = 'Mask Card Number'; // Update button text
+                }
+            });
+    } else {
+        cardNumberElement.textContent = '{{ masked_card_number }}'; // Mask the card number again
+        button.textContent = 'Show Full Card Number'; // Update button text
+    }
+    });
+</script>
+<script>
+    // This script assumes that the state is input via a form
+    document.addEventListener('DOMContentLoaded', function() {
+        const state = "{{ payment_details.state|default:'' }}".toUpperCase();
+        const totalWithTaxElement = document.getElementById('totalWithTax');
+        const totalWithNoTax = document.getElementById('totalWithNoTax');
+        const subTotal = document.getElementById('subTotal');
+        
+        if (state === "CA") {
+            totalWithTaxElement.style.display = 'block';
+            subTotal.style.display = 'block';
+            totalWithNoTax.style.display = 'none';
+
         } else {
-            cardNumberElement.textContent = '**** **** **** ' + fullCardNumber.slice(-4); // Mask the card number
-            this.textContent = 'Show Full Card Number'; // Update button text
+            totalWithTaxElement.style.display = 'none';
+            subTotal.style.display = 'none';
+            totalWithNoTax.style.display = 'block';
         }
     });
 </script>

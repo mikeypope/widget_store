@@ -1,9 +1,16 @@
 {% extends 'store/base.html' %}
 {% block content %}
 {% load static %}
-<br><br><br>
-
-
+<div class="row">
+    <div class="col text-center">
+        <div class="card border-0">
+            <img src="{% static 'images/logo.jpeg' %}" class="card-img-top mx-auto" alt="Widgets Inc." style="width: 200px;">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">"Computer Stuff" since 1998</h6>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <h3>{{ category }}</h3>
     <form method="get" id="manufacturer-filter-form">
@@ -23,7 +30,7 @@
             {% if product.image %}
                 <a href="{% url 'product_detail' product.slug %}"><img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}"/></a>
             {% else %}
-                <a href="{% url 'product_detail' product.slug %}"><img src="{% static 'images/logo.jpeg' %}" class="card-img-top" alt="No image available" /></a>
+                <img src="{% static 'images/logo.jpeg' %}" class="card-img-top" alt="No image available" /></a>
             {% endif %}
             <div class="card-body">
                 <h5 class="card-title">SKU: {{ product.sku }}</h5>

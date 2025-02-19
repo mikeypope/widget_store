@@ -7,6 +7,7 @@
     <p>Thank you for your purchase. Your order is being processed.</p>
     <p><strong>Order Number:</strong> {{ order_number }}</p>
     <p>Please keep this number for reference.</p>
+    <a href="{% url 'show_receipt' order_number %}" class="btn btn-primary">View Receipt</a>
     
 </div>
 {% endblock %}

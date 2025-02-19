@@ -1,13 +1,44 @@
+{% load static %}
 {% for product in products %}
-    <div class="search-result-item">
-        <a href="{% url 'product_detail' product.slug %}">
-            <strong>SKU: {{ product.sku }}</strong>
-            {{ product.category }}
-            <br>
-            {{ product.manufacturer }}
-            {{ product.description|truncatewords:10 }} <!-- Shortened description -->
-        </a>
+    {% if product %}
+    <div class="search-result-item card mb-2" id="card-{{ product.slug }}">
+        <div class="row g-0">
+            <div class="col-3">
+                <a href="{% url 'product_detail' product.slug %}">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="{{ product.name }} by {{ product.manufacturer }}" style="max-height: 100px;">
+                    {% else %}
+                        <img src="{% static 'images/logo.jpeg' %}" class="img-fluid rounded-start" alt="No image available" style="max-height: 100px;">
+                    {% endif %}
+                </a>
+            </div>
+        
+            <div class="col-9">
+                <div class="card-body position-relative">
+                    <a href="{% url 'product_detail' product.slug %}" class="text-decoration-none text-reset">
+                        <h5 class="card-title">
+                            {{ product.category }} > {{ product.manufacturer }} > {{ product.sku }}
+                        </h5>
+                        <p class="card-text text-muted small">{{ product.description|truncatewords:20 }}</p>
+                    </a>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        {% if product.price %}
+                        <form method="post" action="{% url 'add_to_cart' product.id %}" class="position-relative z-index-1">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success">${{ product.price }} | Add to Cart</button>
+                        </form>
+                        {% else %}
+                        <form method="post" action="{% url 'product_detail' product.slug %}" class="position-relative z-index-1">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Call for pricing</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
     </div>
-{% empty %}
-    <p>No results found.</p>
+    {% endif %}
 {% endfor %}

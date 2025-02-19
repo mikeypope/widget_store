@@ -1,58 +1,220 @@
 {% extends 'store/base.html' %}
-{% load crispy_forms_tags %}
+{% include 'store/terms_and_conditions.html' %}
+{% load static %}
 
 {% block content %}
-<br><br><br>
-<h2>Checkout</h2>
+<div class="row">
+    <div class="col text-center">
+        <div class="card border-0">
+            <img src="{% static 'images/logo.jpeg' %}" class="card-img-top mx-auto" alt="Widgets Inc." style="width: 200px;">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">"Computer Stuff" since 1998</h6>
+            </div>
+        </div>
+    </div>
+</div>
+<h2 class="mb-4">Checkout</h2>
 
 {% if cart_items %}
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Manufacturer</th>
-                <th>Description</th>
-                <th>Quantity</th>
-                <th>Price per unit</th>
-                <th>Remove</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in cart_items %}
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead class="thead-dark">
                 <tr>
-                    <td><a href="{% url 'product_detail' item.product.slug %}">
-                        {{ item.product.sku }}
-                    </a></td>
-                    <td>{{ item.product.manufacturer }}</td>
-                    <td>{{ item.product.description }}</td>
-                    <td>
-                        <!-- Quantity Update Form -->
-                        <form action="{% url 'update_cart_item' item.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control" style="width: 60px; display: inline;">
-                            <button type="submit" class="btn btn-primary btn-sm">Update</button>
-                        </form>
-                    </td>
-                    <td>${{ item.product.price }}</td>
-                    <td>
-                        <!-- Link to remove the item from cart -->
-                        <form action="{% url 'remove_from_cart' item.id %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                        </form>
-                    </td>
+                    <th scope="col">Product</th>
+                    <th scope="col">Details</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price/Unit</th>
+                    <th scope="col">Remove</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'product_detail' item.product.slug %}">
+                                <strong>{{ item.product.sku }}</strong>
+                            </a>
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.sku }}" class="img-fluid mt-2" style="max-width: 60px;">
+                            {% else %}
+                                <img src="{% static 'images/logo.jpeg' %}" alt="No image" class="img-fluid mt-2" style="max-width: 60px;">
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>Manufacturer:</strong> {{ item.product.manufacturer }} <br>
+                            <small class="text-muted">{{ item.product.description|truncatewords:10 }}</small>
+                        </td>
+                        <td>
+                            <form action="{% url 'update_cart_item' item.id %}" method="post" class="d-flex align-items-center">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm me-2" style="width: 80px;">
+                                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                            </form>
+                        </td>
+                        <td>${{ item.product.price }}</td>
+                        <td>
+                            <form action="{% url 'remove_from_cart' item.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <h3>Total Price: ${{ total_price|floatformat:2 }}</h3>
+    <!-- Total Price and Tax Calculation -->
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+        <div id="totalWithNoTax" style="display: block;">
+            <label><strong>Total:</strong></label> 
+            <span>${{ total_price|floatformat:2 }}</span>
+        </div>
+    
+        <div id="subTotal" style="display: none;">
+            <label><strong>Subtotal:</strong></label> 
+            <span>${{ total_price|floatformat:2 }}</span>
+        </div>
+    
+        <div id="totalWithTax" style="display: none;">
+            <label><strong>Total with CA Tax:</strong></label> 
+            <span>${{ total_price_with_tax|floatformat:2 }}</span>
+        </div>
+    </div>
+    
+
+    <form method="post" id="checkoutForm">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="payer_name">Name on Card</label>
+                    <input type="text" class="form-control" id="payer_name" name="payer_name" value="{{ form.payer_name.value|default:'' }}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ form.email.value|default:'' }}" required>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="phone">Phone</label>
+                    <input type="text" class="form-control" id="phone" name="phone" value="{{ form.phone.value|default:'' }}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="card_number">Card Number</label>
+                    <input type="text" class="form-control" id="card_number" name="card_number" value="{{ form.card_number.value|default:'' }}" required>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="card_expiry">Expiry Date (MM/YYYY)</label>
+                    <input type="text" class="form-control" id="card_expiry" name="card_expiry" value="{{ form.card_expiry.value|default:'' }}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="card_type">Card Type</label>
+                    <input type="text" class="form-control" id="card_type" name="card_type" value="{{ form.card_type.value|default:'' }}" required>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="street_address">Street Address</label>
+                    <input type="text" class="form-control" id="street_address" name="street_address" value="{{ form.street_address.value|default:'' }}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="city">City</label>
+                    <input type="text" class="form-control" id="city" name="city" value="{{ form.city.value|default:'' }}" required>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="state">State</label>
+                    <input type="text" class="form-control" id="state" name="state" value="{{ form.state.value|default:'' }}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="zip_code">Zip Code</label>
+                    <input type="text" class="form-control" id="zip_code" name="zip_code" value="{{ form.zip_code.value|default:'' }}" required>
+                </div>
+            </div>
+        </div>
+        <!-- Billing Authorization checkbox -->
+        <div class="form-check mt-4">
+            <input type="checkbox" class="form-check-input" id="billingAuth">
+            <label class="form-check-label" for="billingAuth">
+                I confirm that I have read and agreed to the 
+                <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a> of Widgets Inc.
+            </label>            
+        </div>
+        
+        <!-- Place Order Button -->
+        <button type="submit" class="btn btn-success mt-3" id="placeOrder" disabled>Place Order</button>
+    </form>
+    <!-- Terms and Conditions Modal -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% include 'store\terms_and_conditions.html' %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+<script>
+    document.getElementById('state').addEventListener('change', function() {
+        const state = this.value.toUpperCase();
+        const totalWithTaxElement = document.getElementById('totalWithTax');
+        const totalWithNoTax = document.getElementById('totalWithNoTax');
+        const subTotal = document.getElementById('subTotal');
+        
+        if (state === "CA") {
+            totalWithTaxElement.style.display = 'block';
+            subTotal.style.display = 'block';
+            totalWithNoTax.style.display = 'none';
+            
+        } else {
+            totalWithTaxElement.style.display = 'none';
+            subTotal.style.display = 'none';
+            totalWithNoTax.style.display = 'block';
+        }
+    });
+
+    document.getElementById('billingAuth').addEventListener('change', function() {
+        document.getElementById('placeOrder').disabled = !this.checked;
+    });
+</script>
 {% else %}
-    <p>Your cart is empty.</p>
+    <p class="alert alert-warning">Your cart is empty.</p>
 {% endif %}
-<form method="post">
-    {% csrf_token %}
-    {% crispy form %}
-</form>
-
 {% endblock %}

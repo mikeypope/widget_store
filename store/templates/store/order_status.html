@@ -3,14 +3,16 @@
 {% block content %}
 <br><br><br>
 <div class="col-md-4">
-<h3>Check Order Status</h3>
-<form method="post" action="{% url 'check_order_status' %}">
-    {% csrf_token %}
-    <div class="row">
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Check Status</button>
+    <h3>Check Order Status</h3>
+    <div class="card-text"> 
+        <form method="post" action="{% url 'check_order_status' %}">
+        {% csrf_token %}
+        
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Check Status</button>
+        
+        </form>
     </div>
-</form>
 </div>
 
 {% if status %}

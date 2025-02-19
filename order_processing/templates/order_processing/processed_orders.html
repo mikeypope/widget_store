@@ -1,9 +1,10 @@
 {% extends 'store/base.html' %}
 
 {% block content %}
-<br><br><br>
+<a href="{% url 'order_processing:unprocessed_orders' %}" class="btn btn-danger">View Unprocessed Orders</a>
+<a href="{% url 'order_processing:completed_orders' %}" class="btn btn-success">View Completed Orders</a>
+<div class="container mt-4">
 <h2>Processed Orders</h2>
-<a href="{% url 'order_processing:unprocessed_orders' %}" class="btn btn-primary">View Unprocessed Orders</a>
 <br>
 <form method="GET" class="mb-3">
     <div class="row">
@@ -51,4 +52,5 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
 {% endblock %}

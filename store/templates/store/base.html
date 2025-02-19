@@ -5,161 +5,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    {% block cdn %}{% endblock %}
     <title>WIDGETS, INC.</title>
     <style>
-        /* Global Styling */
         body {
             display: flex;
             flex-direction: column;
             height: 100vh;
         }
-
-        /* Navigation Styling */
-        .navbar {
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .navbar-brand img {
-            width: 100%;         /* Allow the image to take full width of its container */
-            max-width: 300px;     /* Limit the maximum width for larger screens */
-            height: auto;        /* Keep aspect ratio */
-            margin-right: 10px;
-        }
-
-        /* Sidebar and Content for Desktop */
         .main {
             display: flex;
             flex: 1;
-            flex-direction: column;
-            padding-top: 80px; /* Leave space for the fixed navbar */
         }
 
-        /* Sidebar Styling for Desktop */
-        .sidebar {
+        .content {
+            margin-left: 0px;
+            padding: 0px;
             width: 100%;
-            background-color: #f8f9fa;
-            padding: 20px;
-            overflow-y: auto;
+            padding-top: 0px;
         }
-
-        /* Sidebar for Larger Screens */
-        @media (min-width: 768px) {
-            .main {
-                flex-direction: row;
-                
-            }
-
-            .sidebar {
-                width: 175px;
-                height: calc(100vh - 60px);
-                position: fixed;
-                top: 60px;
-                left: 0;
-            }
-
-            .content {
-                margin-left: 175px;
-                padding: 20px;
-                width: 100%;
-            }
-            .navbar-brand img {
-        max-width: 50px; /* Adjust max size for smaller screens */
-            }
-        }
-
-        /* Search Dropdown */
         #product-results {
-            position: absolute;
-            top: 100%;  
-            right: 0;
+            position: relative;
+            top: 100%;  /* Position it directly below the search field */
             background: white;
-            width: 100%;
             box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
             z-index: 999;
-            display: none;
+            display: none; /* Initially hidden */
             max-height: 400px;
             overflow-y: auto;
-            margin-top: 5px;
+            margin-top: 0px;  /* Add a little space between the input and the results */
         }
-
         .search-result-item {
-            padding: 10px;
+            padding: 1px;
             border-bottom: 1px solid #ddd;
         }
-
         .search-result-item:hover {
             background-color: #f1f1f1;
         }
+        @media print {
+    #navbar {
+        display: none; /* Hide the nav bar when printing */
+    }
 
-        .ascii-logo {
-            color: #000000;
-            font-family: monospace;
-            font-size: 2vw;
-            text-align: center;
-            white-space: pre;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
+    /* Optionally hide other elements you don't want in the print version */
+    .no-print {
+        display: none;
+    }
+}
+        
+        </style>
 </head>
 <body>
-    <!-- Top Navigation Bar -->
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <img src="{% static 'images/computerstuff.png' %}" alt="WIDGETS, INC.">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+
+
+    <!-- Main Layout -->
+    <div class="main">
+        <!-- Main Content -->
+        <div class="content">
+            <div class="container mt-4">
+                <ul class="nav justify-content-end" id="navbar">
                     <li class="nav-item">
-                        <form class="d-flex ms-3" id="search-form" autocomplete="off">
-                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="search-input">
-                            <div id="product-results"></div> <!-- Search results container -->
-                        </form>
+                      <a class="nav-link" href="/#">Widgets Inc.</a>
                     </li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'check_order_status' %}">Check Order Status</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'cart_summary' %}">See Cart</a></li>
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'order_processing:unprocessed_orders' %}">Order Processing</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'order_processing:unprocessed_orders' %}">Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'manage_inventory' %}">Manage Inventory</a></li>
                         <li class="nav-item">
-                            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                            <form action="{% url 'logout' %}" method="post" class="d-inline">
                                 {% csrf_token %}
-                                <button type="submit" class="nav-link" style="border: none; background: none; padding: 0;">Log Out</button>
+                                <button type="submit" class="btn btn-link nav-link p-0">Log Out</button>
                             </form>
                         </li>
                     {% endif %}
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'cart_summary' %}">Cart <span class="badge bg-secondary">{{ cart_count }}</span></a>
+                    </li>
                 </ul>
+                {% if messages %}
+                <div class="container mt-3">
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} alert-dismissible fade show message-alert" role="alert">
+                            {{ message }}
+                            
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% block content %}{% endblock %}
+                
             </div>
         </div>
-    </nav>
-
-    <!-- Main Layout -->
-    <div class="main container-fluid">
-        <!-- Sidebar for Categories -->
-        <div class="sidebar d-md-block">
-            <h4 class="text-center">Categories</h4>
-            <ul class="nav flex-column">
-                {% for category in categories %}
-                    <li class="nav-item">
-                        <a href="{% url 'product_list_by_category' category.slug %}" class="nav-link">{{ category.name }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-        <!-- Main Content Area -->
-        <div class="content">
-            {% block content %}
-            <!-- Page-specific content goes here -->
-            {% endblock %}
-        </div>
+        
     </div>
 
-    <!-- Bootstrap JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <!-- AJAX Search Script -->
+    <script>
+        $(document).ready(function(){
+            $('#search-input').on('keyup', function(){
+                let query = $(this).val();
+                if (query.length > 0) {
+                    $.ajax({
+                        url: '/search/',
+                        method: 'GET',
+                        data: {
+                            'q': query
+                        },
+                        success: function(response){
+                            $('#product-results').html(response).show();
+                        },
+                        error: function(){
+                            console.log('Search error.');
+                        }
+                    });
+                } else {
+                    $('#product-results').hide();
+                }
+            });
+    
+            // Hide results if clicked outside of the input or results
+            $(document).click(function(e) {
+                if (!$(e.target).closest('#search-input, #product-results').length) {
+                    $('#product-results').hide();
+                }
+            });
+        });
+    </script>
+    <script>
+        // Auto-dismiss messages after 2 seconds
+        window.addEventListener('load', function() {
+            const messages = document.querySelectorAll('.message-alert');
+    
+            // Set a timeout to fade out and remove messages after 2 seconds
+            setTimeout(() => {
+                messages.forEach(message => {
+                    // Smooth fade-out
+                    message.classList.add('fade-out');
+                    setTimeout(() => message.remove(), 500);  // Adjust to match the fade-out duration
+                });
+            }, 2000);
+    
+            // Attach click event to close button to remove the message
+            messages.forEach(message => {
+                const closeBtn = message.querySelector('.close');
+                closeBtn.addEventListener('click', () => {
+                    message.remove();
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function(){
+          $("#InventorySearch").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#InventoryTable tr").filter(function() {
+              $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+          });
+        });
+    </script>
+    {% block script %}{% endblock %}
+    
 </body>
 </html>

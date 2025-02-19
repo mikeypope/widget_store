@@ -1,0 +1,5 @@
+﻿sku,category,manufacturer,description,price,quantity,condition,image
+TESTIMPORT1,Hard Drives,Hitachi,TEST DESCRIPTION 1,123,5,,IMPORT1.png
+TESTIMPORT2,Motherboards,IBM,TEST DESCRIPTION 2,123,4,,IMPORT2.png
+TESTIMPORT3,Hard Drives,Seagate,TEST DESCRIPTION 3,123,3,,IMPORT3.png
+TESTIMPORT4,Power Supplies,IBM,TEST DESCRIPTION 4,123,2,,IMPORT4.jpg
